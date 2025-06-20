@@ -62,3 +62,13 @@ papers = pd.DataFrame({
 })
 papers["filename"] = "papers/" + papers["filename"]
 print(papers)
+
+# Task 2: Upload the Papers
+def upload_file_for_assistant(file_path):
+    uploaded_file = client.files.create(
+        file=open(file_path, "rb"),
+        purpose='assistants'
+    )
+    return uploaded_file.id
+
+
