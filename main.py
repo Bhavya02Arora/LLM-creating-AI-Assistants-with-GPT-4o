@@ -1,6 +1,5 @@
 "Took reference from: 'https://www.datacamp.com/code-along/creating-ai-assistants-with-gpt-4o'"
-
-import os
+# code to be run in DataLab " https://www.datacamp.com/datalab/w/ad0636f6-aa6a-487d-b94b-79362415499a/edit"
 
 # Pre-requisite: Install the OpenAI Python package
 # pip install openai==1.33.0
@@ -18,9 +17,6 @@ import openai
 
 # Import the pandas package with an alias
 import pandas as pd
-
-
-import openai
 
 # Define an OpenAI client. Assign to client.
 client = openai.OpenAI(api_key="your_openai_api_key_here")
