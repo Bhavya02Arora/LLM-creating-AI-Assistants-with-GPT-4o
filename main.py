@@ -94,6 +94,7 @@ vstore = client.beta.vector_stores.create(
 # See the results
 print(vstore)
 
+# Task 3: Create the Assistant
 # Create an assistant that uses the vector store
 assistant_prompt = """
 You are Aggie, a knowledgeable and articulate AI assistant specializing in artificial general intelligence (AGI). Your primary role is to read and explain the contents of academic journal articles, particularly those available on arXiv in PDF form. Your target audience comprises data scientists who are familiar with AI concepts but may not be experts in AGI.
@@ -123,3 +124,92 @@ Q&A Readiness: Be prepared to answer any follow-up questions that data scientist
 Ensure that your explanations are clear, concise, and accessible, avoiding unnecessary jargon. Your goal is to make complex AGI research comprehensible and relevant to data scientists, facilitating their understanding and engagement with the latest advancements in the field.
 """
 
+"""
+Instructions
+Define the assistant. Assign to agentic_agent.
+Call it "agentic_agent" (or another memorable name).
+Give it the assistant_prompt.
+Set the model to use, gpt-4o.
+Give it access to the file search tool.
+Give it access to the vector store tool resource.
+"""
+
+# Define the assistant. Assign to agentic_agent.
+agentic_agent = client.beta.assistants.create(
+    name="agentic_agent",
+    instructions=assistant_prompt,
+    model="gpt-3.5-turbo",
+    tools=[{"type": "file_search"}],
+    tool_resources={"file_search": {"vector_store_ids": [vstore.id]}}
+)
+
+# See the result
+print(agentic_agent)
+
+# Task 4: Create a Conversation Thread
+# Create a thread object. Assign to conversation.
+conversation = client.beta.threads.create()
+
+# See the result
+print(conversation)
+
+
+"""
+Instructions
+Add a user message to the conversation. Assign to msg_what_is_agi.
+Give it the thread id.
+Make it a user message.
+Ask "What are the most common definitions of AGI?".
+"""
+# Next you can add a message to the conversaation thread to ask a question.
+# Add a user message to the conversation. Assign to msg_what_is_agi.
+msg_what_is_agi = client.beta.threads.messages.create(
+    thread_id=conversation.id,
+    role="user",
+    content="What are the most common definitions of AGI?"
+)
+
+# See the result
+print(msg_what_is_agi)
+
+# Task 5: Run the assistant
+"""
+Running the assistant requires an event handler to make it print the responses. While it's fairly tricky code, you never need to change it. This code is taken verbatim from 
+the OpenAI assistants documentation
+"""
+
+# Run this
+from typing_extensions import override
+from openai import AssistantEventHandler
+
+
+# First, we create a EventHandler class to define
+# how we want to handle the events in the response stream.
+
+class EventHandler(AssistantEventHandler):
+    @override
+    def on_text_created(self, text) -> None:
+        print(f"\nassistant > ", end="", flush=True)
+
+    @override
+    def on_text_delta(self, delta, snapshot):
+        print(delta.value, end="", flush=True)
+
+    def on_tool_call_created(self, tool_call):
+        print(f"\nassistant > {tool_call.type}\n", flush=True)
+
+    def on_tool_call_delta(self, delta, snapshot):
+        if delta.type == 'code_interpreter':
+            if delta.code_interpreter.input:
+                print(delta.code_interpreter.input, end="", flush=True)
+            if delta.code_interpreter.outputs:
+                print(f"\n\noutput >", flush=True)
+                for output in delta.code_interpreter.outputs:
+                    if output.type == "logs":
+                        print(f"\n{output.logs}", flush=True)
+
+"""
+Finally, we are ready to run the assistant to get it to answer our question. The code is the same every time, so we can wrap it in a function.
+
+Streaming responses mean that text is displayed a few words at a time, rather than waiting for the entirety of the text to be generated and printing all at once.
+"""
