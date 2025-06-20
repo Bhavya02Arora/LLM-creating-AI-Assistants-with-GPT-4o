@@ -213,3 +213,12 @@ Finally, we are ready to run the assistant to get it to answer our question. The
 
 Streaming responses mean that text is displayed a few words at a time, rather than waiting for the entirety of the text to be generated and printing all at once.
 """
+def run_agentic_agent():
+    with client.beta.threads.runs.stream(
+        thread_id=conversation.id,
+        assistant_id=agentic_agent.id,
+        event_handler=EventHandler(),
+    ) as stream:
+        stream.until_done()
+
+run_agentic_agent()
