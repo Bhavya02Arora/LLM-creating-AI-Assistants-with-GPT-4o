@@ -222,3 +222,17 @@ def run_agentic_agent():
         stream.until_done()
 
 run_agentic_agent()
+
+# Task 6: Add Another Message and Run it Again
+# Create another user message, adding it to the conversation. Assign to msg_how_close_is_agi.
+msg_how_close_is_agi = client.beta.threads.messages.create(
+    thread_id=conversation.id,
+    role="user",
+    content="How close are we to developing AGI?"
+)
+
+# See the result
+print(msg_how_close_is_agi)
+
+# Run the assistant again.
+run_agentic_agent()
