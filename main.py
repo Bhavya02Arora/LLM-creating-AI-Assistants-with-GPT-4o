@@ -63,7 +63,7 @@ papers = pd.DataFrame({
 papers["filename"] = "papers/" + papers["filename"]
 print(papers)
 
-# Task 2: Upload the Papers
+# Upload the Papers
 def upload_file_for_assistant(file_path):
     uploaded_file = client.files.create(
         file=open(file_path, "rb"),
@@ -71,4 +71,25 @@ def upload_file_for_assistant(file_path):
     )
     return uploaded_file.id
 
+# In papers, select the filename column,
+# then apply upload_file_for_assistant(),
+# then convert the result to a list.
+# Assign to uploaded_file_ids.
+uploaded_file_ids = papers["filename"].apply(upload_file_for_assistant).to_list()
 
+# See the result
+print(uploaded_file_ids)
+
+# Task 2: Add the Files to a Vector Store
+"""To access the documents and get sensible results, they need to be split up into small chunks and added to a vector database.
+The assistants API lets you avoid worrying about the chunking stage, so you just need to specify the file IDs that you want to add to a vector database."""
+
+# Create a vector store, associating the uploaded file IDs and naming it.
+vstore = client.beta.vector_stores.create(
+    file_ids=uploaded_file_ids,
+    name="agi_papers"
+
+)
+
+# See the results
+print(vstore)
